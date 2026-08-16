@@ -137,41 +137,42 @@ def build_qr():
     QR.mkdir(exist_ok=True)
     ink = {g: qr_ink(m["color"]) for g, m in GROUPS.items()}
     for c in CARDS:
-        q = qrcode.QRCode(error_correction=ERROR_CORRECT_Q, box_size=12, border=2)
+        # border=1: QR 자체 여백을 최소로. 나머지 quiet zone 은 칸 안쪽 흰 여백이 맡는다.
+        q = qrcode.QRCode(error_correction=ERROR_CORRECT_Q, box_size=12, border=1)
         q.add_data(c["url"])
         q.make(fit=True)
         q.make_image(fill_color=ink[c["group"]], back_color="white").save(
             QR / f"{c['code']}.png"
         )
 
-    css = "".join(
-        f'.{g}{{--c:{m["color"]}}}' for g, m in GROUPS.items()
-    )
+    css = "".join(f'.{g}{{--c:{m["color"]}}}' for g, m in GROUPS.items())
     cells = "".join(
         f'<div class="cell {c["group"]}">'
-        f'<div class="band">{html.escape(GROUPS[c["group"]]["kr"])}</div>'
+        f'<div class="band">{html.escape(GROUPS[c["group"]]["en"])}</div>'
         f'<img src="{c["code"]}.png">'
-        f'<b>{c["code"]}</b><span>{html.escape(c["kr"])}</span></div>'
+        f'<b>{c["code"]}</b><span>{html.escape(c["en"])}</span></div>'
         for c in CARDS
     )
+    # 5열 × 4행 = 20구/장, A4 2장. QR 이 칸을 거의 꽉 채우게 둔다.
     (QR / "qr-sheet.html").write_text(
         f"""<!doctype html>
-<html lang="ko">
+<html lang="en">
 <meta charset="utf-8">
-<title>단서카드 QR 스티커 시트</title>
+<title>Clue Card QR Stickers</title>
 <style>
-  @page{{size:A4;margin:10mm;}}
-  body{{margin:0;font:12px/1.25 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  @page{{size:A4;margin:7mm;}}
+  body{{margin:0;font:12px/1.15 -apple-system,BlinkMacSystemFont,Helvetica,sans-serif;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-  .grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:3.5mm;}}
-  .cell{{border:0.8mm solid var(--c);border-radius:2mm;overflow:hidden;text-align:center;
-    break-inside:avoid;padding-bottom:1.5mm;}}
-  .band{{background:var(--c);color:#fff;font-size:8px;letter-spacing:.06em;
-    padding:1.1mm 0;margin-bottom:1.2mm;}}
-  .cell img{{width:28mm;height:28mm;display:block;margin:0 auto;}}
-  .cell b{{display:block;font-size:12px;letter-spacing:.06em;color:var(--c);
-    font-variant-numeric:tabular-nums;margin-top:0.8mm;}}
-  .cell span{{display:block;font-size:10px;color:#444;}}
+  .grid{{display:grid;grid-template-columns:repeat(5,1fr);gap:2mm;}}
+  .cell{{border:0.6mm solid var(--c);border-radius:1.5mm;overflow:hidden;text-align:center;
+    break-inside:avoid;padding-bottom:1.2mm;}}
+  .band{{background:var(--c);color:#fff;font-size:6.4px;letter-spacing:.04em;
+    padding:1mm 0;white-space:nowrap;}}
+  .cell img{{width:100%;display:block;padding:1.2mm;box-sizing:border-box;}}
+  .cell b{{display:block;font-size:11px;letter-spacing:.06em;color:var(--c);
+    font-variant-numeric:tabular-nums;}}
+  .cell span{{display:block;font-size:7.2px;line-height:1.25;color:#444;
+    letter-spacing:.02em;padding:0.4mm 1mm 0;}}
   {css}
 </style>
 <div class="grid">{cells}</div>
