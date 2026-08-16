@@ -110,18 +110,48 @@ def build_index():
     )
 
 
+def _luminance(rgb):
+    """WCAG 상대 휘도."""
+    out = []
+    for v in rgb:
+        c = v / 255
+        out.append(c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4)
+    return 0.2126 * out[0] + 0.7152 * out[1] + 0.0722 * out[2]
+
+
+def qr_ink(hexcolor, min_contrast=7.0):
+    """가구 색을 QR 모듈에 쓸 만큼 어둡게 낮춘다.
+
+    흰 배경 대비가 모자라면 스캔이 불안정해진다. 노란색 계열(주막 #CE981F)이
+    특히 위험해서, 대비 7:1 을 넘길 때까지 단계적으로 어둡게 만든다.
+    """
+    rgb = [int(hexcolor[i : i + 2], 16) for i in (1, 3, 5)]
+    for _ in range(60):
+        if 1.05 / (_luminance(rgb) + 0.05) >= min_contrast:
+            break
+        rgb = [max(0, int(v * 0.94)) for v in rgb]
+    return "#%02X%02X%02X" % tuple(rgb)
+
+
 def build_qr():
     QR.mkdir(exist_ok=True)
+    ink = {g: qr_ink(m["color"]) for g, m in GROUPS.items()}
     for c in CARDS:
         q = qrcode.QRCode(error_correction=ERROR_CORRECT_Q, box_size=12, border=2)
         q.add_data(c["url"])
         q.make(fit=True)
-        q.make_image(fill_color="black", back_color="white").save(QR / f"{c['code']}.png")
+        q.make_image(fill_color=ink[c["group"]], back_color="white").save(
+            QR / f"{c['code']}.png"
+        )
 
+    css = "".join(
+        f'.{g}{{--c:{m["color"]}}}' for g, m in GROUPS.items()
+    )
     cells = "".join(
-        f'<div class="cell"><img src="{c["code"]}.png">'
-        f'<b style="color:{GROUPS[c["group"]]["color"]}">{c["code"]}</b>'
-        f'<span>{html.escape(c["kr"])}</span></div>'
+        f'<div class="cell {c["group"]}">'
+        f'<div class="band">{html.escape(GROUPS[c["group"]]["kr"])}</div>'
+        f'<img src="{c["code"]}.png">'
+        f'<b>{c["code"]}</b><span>{html.escape(c["kr"])}</span></div>'
         for c in CARDS
     )
     (QR / "qr-sheet.html").write_text(
@@ -130,14 +160,19 @@ def build_qr():
 <meta charset="utf-8">
 <title>단서카드 QR 스티커 시트</title>
 <style>
-  @page{{size:A4;margin:12mm;}}
-  body{{margin:0;font:12px/1.4 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;}}
-  .grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:6mm;}}
-  .cell{{border:1px dashed #bbb;border-radius:2mm;padding:3mm;text-align:center;
-    break-inside:avoid;}}
-  .cell img{{width:32mm;height:32mm;display:block;margin:0 auto 2mm;}}
-  .cell b{{display:block;font-size:13px;letter-spacing:.05em;}}
-  .cell span{{display:block;font-size:11px;color:#555;}}
+  @page{{size:A4;margin:10mm;}}
+  body{{margin:0;font:12px/1.25 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+  .grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:3.5mm;}}
+  .cell{{border:0.8mm solid var(--c);border-radius:2mm;overflow:hidden;text-align:center;
+    break-inside:avoid;padding-bottom:1.5mm;}}
+  .band{{background:var(--c);color:#fff;font-size:8px;letter-spacing:.06em;
+    padding:1.1mm 0;margin-bottom:1.2mm;}}
+  .cell img{{width:28mm;height:28mm;display:block;margin:0 auto;}}
+  .cell b{{display:block;font-size:12px;letter-spacing:.06em;color:var(--c);
+    font-variant-numeric:tabular-nums;margin-top:0.8mm;}}
+  .cell span{{display:block;font-size:10px;color:#444;}}
+  {css}
 </style>
 <div class="grid">{cells}</div>
 """,
