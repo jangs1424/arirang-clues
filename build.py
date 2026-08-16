@@ -181,7 +181,7 @@ def build_qr():
     -webkit-print-color-adjust:exact;print-color-adjust:exact;}}
   .grid{{display:grid;grid-template-columns:repeat({COLS},1fr);
     grid-auto-rows:{ROW_H:.2f}mm;gap:{GAP}mm;}}
-  .cell{{border:0.5mm solid var(--c);border-radius:1.5mm;overflow:hidden;text-align:center;
+  .cell{{border:0.5mm solid var(--c);overflow:hidden;text-align:center;
     break-inside:avoid;padding-bottom:0.8mm;}}
   .band{{background:var(--c);color:#fff;font-size:6px;letter-spacing:.04em;
     padding:0.55mm 0;white-space:nowrap;}}
