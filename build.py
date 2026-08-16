@@ -16,6 +16,12 @@ DOCS = ROOT / "docs"
 IMG = DOCS / "cards"
 QR = ROOT / "qr"
 
+# 인쇄 시트 레이아웃 (mm). A4 297mm 세로에 6행이 정확히 떨어지도록 행 높이를 계산한다.
+# 0.4mm 는 반올림 여유 - 이게 없으면 브라우저에 따라 6행째가 다음 장으로 밀린다.
+MARGIN, GAP, COLS, ROWS = 6, 1.5, 5, 6
+ROW_H = (297 - 2 * MARGIN - (ROWS - 1) * GAP) / ROWS - 0.4
+QR_MM = 32.5  # 칸 안 라벨/띠를 뺀 나머지. ROW_H 를 건드리면 같이 맞춰야 한다.
+
 data = json.loads((ROOT / "cards.json").read_text(encoding="utf-8"))
 BASE = data["baseUrl"].rstrip("/")
 GROUPS = data["groups"]
@@ -146,33 +152,46 @@ def build_qr():
         )
 
     css = "".join(f'.{g}{{--c:{m["color"]}}}' for g, m in GROUPS.items())
-    cells = "".join(
-        f'<div class="cell {c["group"]}">'
-        f'<div class="band">{html.escape(GROUPS[c["group"]]["en"])}</div>'
-        f'<img src="{c["code"]}.png">'
-        f'<b>{c["code"]}</b><span>{html.escape(c["en"])}</span></div>'
-        for c in CARDS
-    )
-    # 5열 × 4행 = 20구/장, A4 2장. QR 이 칸을 거의 꽉 채우게 둔다.
+
+    def cell(c):
+        return (
+            f'<div class="cell {c["group"]}">'
+            f'<div class="band">{html.escape(GROUPS[c["group"]]["en"])}</div>'
+            f'<img src="{c["code"]}.png">'
+            f'<b>{c["code"]}</b><span>{html.escape(c["en"])}</span></div>'
+        )
+
+    one_set = "".join(cell(c) for c in CARDS)
+    # 36장은 5열로 딱 안 떨어져서 마지막 줄(T-6)에 4칸이 남는다. 그 칸을 여벌로 메우지
+    # 않고 비워 둔다 - 여벌 세트가 어느 줄부터인지 인쇄물에서 바로 보이게 하기 위함.
+    rest = (-len(CARDS)) % COLS
+    gap = f'<div class="gap" style="grid-column:span {rest}">SPARE SET ↓</div>' if rest else ""
+    cells = one_set + gap + one_set
+
+    # 5열 × 6행 = 30구/장. 36 + 빈칸4 + 36 = 16줄이라 A4 3장(6/6/4줄)에 떨어진다.
+    # 줄 높이를 mm 로 못박아야 브라우저마다 6행으로 끊긴다.
     (QR / "qr-sheet.html").write_text(
         f"""<!doctype html>
 <html lang="en">
 <meta charset="utf-8">
 <title>Clue Card QR Stickers</title>
 <style>
-  @page{{size:A4;margin:7mm;}}
+  @page{{size:A4;margin:{MARGIN}mm;}}
   body{{margin:0;font:12px/1.15 -apple-system,BlinkMacSystemFont,Helvetica,sans-serif;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-  .grid{{display:grid;grid-template-columns:repeat(5,1fr);gap:2mm;}}
-  .cell{{border:0.6mm solid var(--c);border-radius:1.5mm;overflow:hidden;text-align:center;
-    break-inside:avoid;padding-bottom:1.2mm;}}
-  .band{{background:var(--c);color:#fff;font-size:6.4px;letter-spacing:.04em;
-    padding:1mm 0;white-space:nowrap;}}
-  .cell img{{width:100%;display:block;padding:1.2mm;box-sizing:border-box;}}
-  .cell b{{display:block;font-size:11px;letter-spacing:.06em;color:var(--c);
-    font-variant-numeric:tabular-nums;}}
-  .cell span{{display:block;font-size:7.2px;line-height:1.25;color:#444;
-    letter-spacing:.02em;padding:0.4mm 1mm 0;}}
+  .grid{{display:grid;grid-template-columns:repeat({COLS},1fr);
+    grid-auto-rows:{ROW_H:.2f}mm;gap:{GAP}mm;}}
+  .cell{{border:0.5mm solid var(--c);border-radius:1.5mm;overflow:hidden;text-align:center;
+    break-inside:avoid;padding-bottom:0.8mm;}}
+  .band{{background:var(--c);color:#fff;font-size:6px;letter-spacing:.04em;
+    padding:0.55mm 0;white-space:nowrap;}}
+  .cell img{{height:{QR_MM}mm;width:auto;max-width:100%;display:block;margin:0.8mm auto 0;}}
+  .cell b{{display:block;font-size:9px;line-height:1.1;letter-spacing:.06em;color:var(--c);
+    font-variant-numeric:tabular-nums;padding-top:0.5mm;}}
+  .cell span{{display:block;font-size:6.6px;line-height:1.15;color:#444;
+    letter-spacing:.02em;padding:0.25mm 1mm 0;}}
+  .gap{{display:flex;align-items:center;justify-content:center;
+    font-size:8px;letter-spacing:.16em;color:#bbb;}}
   {css}
 </style>
 <div class="grid">{cells}</div>
