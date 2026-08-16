@@ -6,6 +6,7 @@ import html
 import json
 import pathlib
 import shutil
+import subprocess
 
 import qrcode
 from qrcode.constants import ERROR_CORRECT_Q
@@ -144,11 +145,33 @@ def build_qr():
     )
 
 
+CHROME = pathlib.Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+
+
+def print_qr_sheet():
+    if not CHROME.exists():
+        print("Chrome 없음 - qr-sheet.html 을 직접 인쇄하세요.")
+        return
+    subprocess.run(
+        [
+            str(CHROME),
+            "--headless",
+            "--disable-gpu",
+            "--no-pdf-header-footer",
+            f"--print-to-pdf={QR / 'qr-sheet.pdf'}",
+            (QR / "qr-sheet.html").as_uri(),
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+
 if __name__ == "__main__":
     IMG.mkdir(parents=True, exist_ok=True)
     build_viewers()
     build_index()
     build_qr()
+    print_qr_sheet()
     ready = sum(c["ready"] for c in CARDS)
     print(f"카드 {len(CARDS)}장 / 이미지 {ready}장")
     print(f"뷰어 {DOCS/'c'}")
