@@ -2,8 +2,8 @@
   "baseUrl": "https://jangs1424.github.io/arirang-clues",
   "figma": {
     "fileKey": "H025TsxdS3dio90C3C6PpO",
-    "nodeId": "517:3213",
-    "scale": 4
+    "nodeId": "517:3214",
+    "scale": 2
   },
   "groups": {
     "P": { "en": "MR. PARK'S CLUE",       "kr": "우편배달부 가족 · 박만수", "color": "#795A5E" },
@@ -54,6 +54,6 @@
     { "code": "T-3", "en": "BROKEN BRUSH",              "kr": "부러진 붓" },
     { "code": "T-4", "en": "LIST OF CHILDREN",          "kr": "아이들의 명단" },
     { "code": "T-5", "en": "CHERRY BLOSSOM SEAL",       "kr": "벚꽃 인장" },
-    { "code": "T-6", "en": "LETTER TO A FRIEND",        "kr": "친우에게 편지" }
+    { "code": "T-6", "en": "LETTER TO A FRIEND",        "kr": "친우의 편지" }
   ]
 }

@@ -16,7 +16,8 @@ import requests
 
 ROOT = pathlib.Path(__file__).parent
 OUT = ROOT / "docs" / "cards"
-CFG = json.loads((ROOT / "cards.json").read_text(encoding="utf-8"))["figma"]
+MANIFEST = ROOT / "cards.json"
+CFG = json.loads(MANIFEST.read_text(encoding="utf-8"))["figma"]
 
 TOKEN = os.environ.get("FIGMA_TOKEN")
 if not TOKEN:
@@ -27,8 +28,8 @@ HEAD = {"X-Figma-Token": TOKEN}
 CODE = re.compile(r"\b([PMAGIT])[-_ ]?([1-6])\b", re.I)
 
 
-def get(path, **params):
-    r = requests.get(f"{API}/{path}", headers=HEAD, params=params, timeout=60)
+def get(path, timeout=120, **params):
+    r = requests.get(f"{API}/{path}", headers=HEAD, params=params, timeout=timeout)
     r.raise_for_status()
     return r.json()
 
@@ -37,6 +38,14 @@ def walk(node, depth=0):
     yield depth, node
     for child in node.get("children", []):
         yield from walk(child, depth + 1)
+
+
+def check_names(names):
+    """피그마 프레임 이름과 cards.json 의 한글명이 어긋나면 알린다 (QR 시트 라벨용)."""
+    for card in json.loads(MANIFEST.read_text(encoding="utf-8"))["cards"]:
+        figma = names.get(card["code"])
+        if figma and figma != card["kr"]:
+            print(f"  ! {card['code']} 이름 불일치 - 피그마 '{figma}' / cards.json '{card['kr']}'")
 
 
 def main():
@@ -52,7 +61,8 @@ def main():
     for _, n in walk(root):
         m = CODE.search(n["name"])
         if m and n["type"] in ("FRAME", "COMPONENT", "INSTANCE", "GROUP"):
-            found.setdefault(f"{m.group(1).upper()}-{m.group(2)}", n["id"])
+            code = f"{m.group(1).upper()}-{m.group(2)}"
+            found.setdefault(code, (n["id"], n["name"][m.end() :].strip(" ]·-")))
 
     if len(found) != 36:
         print(f"카드 {len(found)}개만 인식됨. --tree 로 노드 이름 확인 필요.")
@@ -60,16 +70,24 @@ def main():
         if not found:
             return
 
-    ids = list(found.values())
-    urls = get(
-        f"images/{CFG['fileKey']}",
-        ids=",".join(ids),
-        format="png",
-        scale=CFG["scale"],
-    )["images"]
+    check_names({c: name for c, (_, name) in found.items()})
+    # 36장을 한 번에 렌더 요청하면 피그마 쪽에서 타임아웃 난다. 6장씩 끊어서 요청.
+    ids = [nid for nid, _ in found.values()]
+    urls = {}
+    for i in range(0, len(ids), 6):
+        chunk = ids[i : i + 6]
+        urls.update(
+            get(
+                f"images/{CFG['fileKey']}",
+                ids=",".join(chunk),
+                format="png",
+                scale=CFG["scale"],
+            )["images"]
+        )
+        print(f"  렌더 {min(i + 6, len(ids))}/{len(ids)}")
 
     OUT.mkdir(parents=True, exist_ok=True)
-    for code, nid in sorted(found.items()):
+    for code, (nid, _) in sorted(found.items()):
         url = urls.get(nid)
         if not url:
             print(f"  {code} 실패 (렌더 URL 없음)")
