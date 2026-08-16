@@ -1,0 +1,59 @@
+{
+  "baseUrl": "https://jangs1424.github.io/arirang-clues",
+  "figma": {
+    "fileKey": "H025TsxdS3dio90C3C6PpO",
+    "nodeId": "517:3213",
+    "scale": 4
+  },
+  "groups": {
+    "P": { "en": "MR. PARK'S CLUE",       "kr": "우편배달부 가족 · 박만수", "color": "#795A5E" },
+    "M": { "en": "MRS. LEE'S CLUE",       "kr": "정미소 일꾼 가족 · 이순덕", "color": "#70271B" },
+    "A": { "en": "PHYSICIAN HAN'S CLUE",  "kr": "의원 가족 · 한석주",       "color": "#55563E" },
+    "G": { "en": "CONSTABLE OH'S CLUE",   "kr": "순사 가족 · 오철수",       "color": "#3F4C61" },
+    "I": { "en": "MRS. KIM'S CLUE",       "kr": "주막 일꾼 가족 · 김순이",  "color": "#CE981F" },
+    "T": { "en": "TEACHER YUN'S CLUE",    "kr": "훈장 가족 · 윤호진",       "color": "#AC4E12" }
+  },
+  "cards": [
+    { "code": "P-1", "en": "BURN MARK",                 "kr": "탄 흔적" },
+    { "code": "P-2", "en": "RUMOR ABOUT A BURN",        "kr": "화상 소문" },
+    { "code": "P-3", "en": "LETTER FROM MANCHURIA",     "kr": "만주발 편지" },
+    { "code": "P-4", "en": "REPUTATION",                "kr": "평판" },
+    { "code": "P-5", "en": "TWO DAYS MISSING",          "kr": "이틀의 공백" },
+    { "code": "P-6", "en": "DIARY FRAGMENT",            "kr": "일기 조각" },
+
+    { "code": "M-1", "en": "EMPTY RICE JAR",            "kr": "빈 쌀독" },
+    { "code": "M-2", "en": "PHYSICIAN'S NOTE",          "kr": "진료 쪽지" },
+    { "code": "M-3", "en": "REMAINING RICE",            "kr": "남은 쌀" },
+    { "code": "M-4", "en": "DEBT DOCUMENT",             "kr": "빚 문서" },
+    { "code": "M-5", "en": "RUMOR FROM LAST AUTUMN",    "kr": "작년 가을의 소문" },
+    { "code": "M-6", "en": "THE TWO WHO WERE TAKEN AWAY", "kr": "끌려간 두 사람" },
+
+    { "code": "A-1", "en": "BLOODSTAINED BANDAGES",     "kr": "핏자국" },
+    { "code": "A-2", "en": "MEDICAL REFERENCE BOOK",    "kr": "약재 책" },
+    { "code": "A-3", "en": "BLACKMAIL NOTE",            "kr": "협박 쪽지" },
+    { "code": "A-4", "en": "NOTES IN JAPANESE",         "kr": "일본어 쪽지" },
+    { "code": "A-5", "en": "TORN MEDICAL LEDGER",       "kr": "찢긴 장부" },
+    { "code": "A-6", "en": "RUMOR FROM LAST WINTER",    "kr": "지난겨울의 소문" },
+
+    { "code": "G-1", "en": "ARREST RECORDS",            "kr": "체포 기록" },
+    { "code": "G-2", "en": "POLICE STATION BAG",        "kr": "주재소 가방" },
+    { "code": "G-3", "en": "DIARY",                     "kr": "일기" },
+    { "code": "G-4", "en": "VILLAGE RUMORS",            "kr": "마을의 소문" },
+    { "code": "G-5", "en": "LETTER FROM A COLLEAGUE",   "kr": "동료의 편지" },
+    { "code": "G-6", "en": "TRANSFER ORDER",            "kr": "발령 서류" },
+
+    { "code": "I-1", "en": "YOUR HUSBAND'S HAT",        "kr": "남편의 갓" },
+    { "code": "I-2", "en": "REPLY FROM THE AUTHORITIES","kr": "관청의 답변" },
+    { "code": "I-3", "en": "A WORN NOTE",               "kr": "손때 묻은 쪽지" },
+    { "code": "I-4", "en": "MARKET RUMOR",              "kr": "장터의 소문" },
+    { "code": "I-5", "en": "LODGING TAG",               "kr": "숙박패" },
+    { "code": "I-6", "en": "A LINE IN A DIARY",         "kr": "일기 한 줄" },
+
+    { "code": "T-1", "en": "PAGES INSIDE A TEXTBOOK",   "kr": "교본 속 글" },
+    { "code": "T-2", "en": "PRACTICE NOTE",             "kr": "연습 쪽지" },
+    { "code": "T-3", "en": "BROKEN BRUSH",              "kr": "부러진 붓" },
+    { "code": "T-4", "en": "LIST OF CHILDREN",          "kr": "아이들의 명단" },
+    { "code": "T-5", "en": "CHERRY BLOSSOM SEAL",       "kr": "벚꽃 인장" },
+    { "code": "T-6", "en": "LETTER TO A FRIEND",        "kr": "친우에게 편지" }
+  ]
+}
