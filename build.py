@@ -20,7 +20,8 @@ QR = ROOT / "qr"
 # 0.4mm 는 반올림 여유 - 이게 없으면 브라우저에 따라 6행째가 다음 장으로 밀린다.
 MARGIN, GAP, COLS, ROWS = 6, 1.5, 5, 6
 ROW_H = (297 - 2 * MARGIN - (ROWS - 1) * GAP) / ROWS - 0.4
-QR_MM = 32.5  # 칸 안 라벨/띠를 뺀 나머지. ROW_H 를 건드리면 같이 맞춰야 한다.
+QR_MM = 31.0  # 칸 안 라벨/띠를 뺀 나머지. ROW_H 를 건드리면 같이 맞춰야 한다.
+COL_W = 35  # QR(31mm)에 맞춘 칸 폭. 1fr 로 두면 양옆에 흰 여백이 뜬다.
 
 data = json.loads((ROOT / "cards.json").read_text(encoding="utf-8"))
 BASE = data["baseUrl"].rstrip("/")
@@ -154,11 +155,14 @@ def build_qr():
     css = "".join(f'.{g}{{--c:{m["color"]}}}' for g, m in GROUPS.items())
 
     def cell(c):
+        # 스티커에는 집 이름과 번호만. 항목명(BURN MARK 등)은 넣지 않는다 - 종이에
+        # 박히면 나중에 못 고치고, 대조는 아래 qr-list.html 로 한다.
+        g = GROUPS[c["group"]]
         return (
             f'<div class="cell {c["group"]}">'
-            f'<div class="band">{html.escape(GROUPS[c["group"]]["en"])}</div>'
+            f'<div class="band">{html.escape(g["sticker"])}</div>'
             f'<img src="{c["code"]}.png">'
-            f'<b>{c["code"]}</b><span>{html.escape(c["en"])}</span></div>'
+            f'<b>{c["code"].split("-")[1]}</b></div>'
         )
 
     one_set = "".join(cell(c) for c in CARDS)
@@ -179,17 +183,15 @@ def build_qr():
   @page{{size:A4;margin:{MARGIN}mm;}}
   body{{margin:0;font:12px/1.15 -apple-system,BlinkMacSystemFont,Helvetica,sans-serif;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-  .grid{{display:grid;grid-template-columns:repeat({COLS},1fr);
+  .grid{{display:grid;grid-template-columns:repeat({COLS},{COL_W}mm);justify-content:center;
     grid-auto-rows:{ROW_H:.2f}mm;gap:{GAP}mm;}}
   .cell{{border:0.5mm solid var(--c);overflow:hidden;text-align:center;
     break-inside:avoid;padding-bottom:0.8mm;}}
-  .band{{background:var(--c);color:#fff;font-size:6px;letter-spacing:.04em;
-    padding:0.55mm 0;white-space:nowrap;}}
+  .band{{background:var(--c);color:#fff;font-size:11px;font-weight:600;letter-spacing:.03em;
+    padding:0.7mm 0;white-space:nowrap;}}
   .cell img{{height:{QR_MM}mm;width:auto;max-width:100%;display:block;margin:0.8mm auto 0;}}
-  .cell b{{display:block;font-size:9px;line-height:1.1;letter-spacing:.06em;color:var(--c);
+  .cell b{{display:block;font-size:15px;line-height:1.1;color:var(--c);
     font-variant-numeric:tabular-nums;padding-top:0.5mm;}}
-  .cell span{{display:block;font-size:6.6px;line-height:1.15;color:#444;
-    letter-spacing:.02em;padding:0.25mm 1mm 0;}}
   .gap{{display:flex;align-items:center;justify-content:center;
     font-size:8px;letter-spacing:.16em;color:#bbb;}}
   {css}
@@ -200,12 +202,57 @@ def build_qr():
     )
 
 
+def build_list():
+    """스티커에 항목명이 없으니, 어느 번호가 무슨 단서인지 붙일 때 볼 대조표."""
+    blocks = []
+    for g, m in GROUPS.items():
+        rows = "".join(
+            f'<tr><td class="n">{c["code"].split("-")[1]}</td>'
+            f'<td>{html.escape(c["en"])}</td>'
+            f'<td class="kr">{html.escape(c["kr"])}</td></tr>'
+            for c in CARDS
+            if c["group"] == g
+        )
+        blocks.append(
+            f'<div class="box" style="--c:{m["color"]}">'
+            f'<h2>{html.escape(m["sticker"])}</h2>'
+            f'<div class="kr sub">{html.escape(m["kr"])}</div>'
+            f"<table>{rows}</table></div>"
+        )
+    (QR / "qr-list.html").write_text(
+        f"""<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Clue Card QR - placement list</title>
+<style>
+  @page{{size:A4;margin:12mm;}}
+  body{{margin:0;font:11px/1.4 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+  h1{{font-size:15px;margin:0 0 2mm;}}
+  .lead{{color:#666;font-size:10px;margin:0 0 5mm;}}
+  .wrap{{display:grid;grid-template-columns:1fr 1fr;gap:5mm;}}
+  .box{{border-top:1.2mm solid var(--c);padding-top:1.5mm;break-inside:avoid;}}
+  h2{{font-size:11.5px;margin:0;color:var(--c);letter-spacing:.03em;}}
+  .sub{{font-size:9.5px;color:#777;margin-bottom:1.5mm;}}
+  table{{width:100%;border-collapse:collapse;}}
+  td{{padding:1mm 0;border-bottom:0.2mm solid #eee;vertical-align:top;}}
+  td.n{{width:7mm;font-weight:700;color:var(--c);font-variant-numeric:tabular-nums;}}
+  td.kr{{width:34%;color:#666;}}
+</style>
+<h1>단서카드 QR 배치표</h1>
+<p class="lead">스티커에는 집 이름과 번호만 있습니다. 소품에 붙일 때 이 표로 대조하세요.</p>
+<div class="wrap">{"".join(blocks)}</div>
+""",
+        encoding="utf-8",
+    )
+
+
 CHROME = pathlib.Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 
 
-def print_qr_sheet():
+def print_pdf(name):
     if not CHROME.exists():
-        print("Chrome 없음 - qr-sheet.html 을 직접 인쇄하세요.")
+        print(f"Chrome 없음 - {name}.html 을 직접 인쇄하세요.")
         return
     subprocess.run(
         [
@@ -213,8 +260,8 @@ def print_qr_sheet():
             "--headless",
             "--disable-gpu",
             "--no-pdf-header-footer",
-            f"--print-to-pdf={QR / 'qr-sheet.pdf'}",
-            (QR / "qr-sheet.html").as_uri(),
+            f"--print-to-pdf={QR / (name + '.pdf')}",
+            (QR / f"{name}.html").as_uri(),
         ],
         check=True,
         capture_output=True,
@@ -226,8 +273,10 @@ if __name__ == "__main__":
     build_viewers()
     build_index()
     build_qr()
-    print_qr_sheet()
+    build_list()
+    print_pdf("qr-sheet")
+    print_pdf("qr-list")
     ready = sum(c["ready"] for c in CARDS)
     print(f"카드 {len(CARDS)}장 / 이미지 {ready}장")
     print(f"뷰어 {DOCS/'c'}")
-    print(f"QR   {QR}  (인쇄: qr-sheet.html)")
+    print(f"QR   {QR}  (인쇄: qr-sheet.pdf / 대조표: qr-list.pdf)")

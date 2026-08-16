@@ -6,12 +6,12 @@
     "scale": 2
   },
   "groups": {
-    "P": { "en": "MR. PARK'S CLUE",       "kr": "우편배달부 가족 · 박만수", "color": "#795A5E" },
-    "M": { "en": "MRS. LEE'S CLUE",       "kr": "정미소 일꾼 가족 · 이순덕", "color": "#70271B" },
-    "A": { "en": "PHYSICIAN HAN'S CLUE",  "kr": "의원 가족 · 한석주",       "color": "#55563E" },
-    "G": { "en": "CONSTABLE OH'S CLUE",   "kr": "순사 가족 · 오철수",       "color": "#3F4C61" },
-    "I": { "en": "MRS. KIM'S CLUE",       "kr": "주막 일꾼 가족 · 김순이",  "color": "#CE981F" },
-    "T": { "en": "TEACHER YUN'S CLUE",    "kr": "훈장 가족 · 윤호진",       "color": "#AC4E12" }
+    "P": { "en": "MR. PARK'S CLUE",       "sticker": "POSTMAN · PARK",    "kr": "우편배달부 가족 · 박만수", "color": "#795A5E" },
+    "M": { "en": "MRS. LEE'S CLUE",       "sticker": "MILL WORKER · LEE", "kr": "정미소 일꾼 가족 · 이순덕", "color": "#70271B" },
+    "A": { "en": "PHYSICIAN HAN'S CLUE",  "sticker": "PHYSICIAN · HAN",   "kr": "의원 가족 · 한석주",       "color": "#55563E" },
+    "G": { "en": "CONSTABLE OH'S CLUE",   "sticker": "CONSTABLE · OH",    "kr": "순사 가족 · 오철수",       "color": "#3F4C61" },
+    "I": { "en": "MRS. KIM'S CLUE",       "sticker": "TAVERN · KIM",      "kr": "주막 일꾼 가족 · 김순이",  "color": "#CE981F" },
+    "T": { "en": "TEACHER YUN'S CLUE",    "sticker": "TEACHER · YUN",     "kr": "훈장 가족 · 윤호진",       "color": "#AC4E12" }
   },
   "cards": [
     { "code": "P-1", "en": "BURN MARK",                 "kr": "탄 흔적" },
