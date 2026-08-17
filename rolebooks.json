@@ -1,0 +1,12 @@
+{
+  "notionSite": "https://slime-isthmus-e25.notion.site",
+  "comment": "색·한글 가구명은 cards.json 의 groups 를 그대로 쓴다 (팔레트 단일 출처). 여기에는 게시된 노션 페이지 ID만 둔다.",
+  "rolebooks": {
+    "P": { "en": "THE POSTMAN'S FAMILY",           "who": "Park Man-su",  "notion": "3bab53cc1ceb81819be9ebda1fa05398" },
+    "M": { "en": "THE RICE MILL WORKER'S FAMILY",  "who": "Lee Sun-deok", "notion": "3bab53cc1ceb81c7a29fea60e4991ed8" },
+    "A": { "en": "THE DOCTOR'S FAMILY",            "who": "Han Seok-ju",  "notion": "3bab53cc1ceb813d9c55f1d6104847d6" },
+    "G": { "en": "THE CONSTABLE'S FAMILY",         "who": "Oh Cheol-su",  "notion": "3bab53cc1ceb81348cb0fe7564027f67" },
+    "I": { "en": "THE TAVERN WORKER'S FAMILY",     "who": "Kim Soon-yi",  "notion": "3bab53cc1ceb81268a04ccffccfa517f" },
+    "T": { "en": "THE SCHOOLMASTER'S FAMILY",      "who": "Yun Ho-jin",   "notion": "3bab53cc1ceb81a0a47ce706ae43159c" }
+  }
+}
